@@ -26,7 +26,7 @@ function callCodeGen(args, cwd) {
 function activate(context) {
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
-    console.log('Congratulations, your extension "brightascension" is now active!');
+    console.log('Bright Ascension CodeGen extension activated!');
     let ba_config = vscode.workspace.getConfiguration('brightascension');
     let gen1_root = ba_config.get('gen1_root');
     if (gen1_root === undefined) {
@@ -102,12 +102,7 @@ function activate(context) {
                 return;
             }
             let genARGS = ['deployment', 'generate', '.'];
-            console.log(flags);
-            flags.forEach(flag => {
-                if (flag.picked) {
-                    genARGS.push(flag.label);
-                }
-            });
+            flags.forEach(flag => genARGS.push(flag.label));
             console.log('Deployment generate args: ' + genARGS.join(' '));
             callCodeGen(genARGS, uri.fsPath.replace('/deployment.xml', ''));
         });
@@ -133,14 +128,8 @@ function activate(context) {
             }
             let componentPath = uri.fsPath.replace('/componentType.xml', '').split('inc/');
             let componentName = componentPath[1].replace(/\//g, '.');
-            console.log('Inferred name: ' + componentName);
             let genARGS = ['componenttype', 'generate', '.', '-n', componentName];
-            console.log(flags);
-            flags.forEach(flag => {
-                if (flag.picked) {
-                    genARGS.push(flag.label);
-                }
-            });
+            flags.forEach(flag => genARGS.push(flag.label));
             console.log('Component generate args: ' + genARGS.join(' '));
             callCodeGen(genARGS, componentPath[0]);
         });
@@ -158,14 +147,8 @@ function activate(context) {
             }
             let servicePath = uri.fsPath.replace('/service.xml', '').split('inc/');
             let componentName = servicePath[1].replace(/\//g, '.');
-            console.log('Inferred name: ' + componentName);
             let genARGS = ['service', 'generate', '.', '-n', componentName];
-            console.log(flags);
-            flags.forEach(flag => {
-                if (flag.picked) {
-                    genARGS.push(flag.label);
-                }
-            });
+            flags.forEach(flag => genARGS.push(flag.label));
             console.log('Component generate args: ' + genARGS.join(' '));
             callCodeGen(genARGS, servicePath[0]);
         });
@@ -180,6 +163,8 @@ function activate(context) {
 }
 exports.activate = activate;
 // this method is called when your extension is deactivated
-function deactivate() { }
+function deactivate() {
+    console.log("Birght Ascension CodeGen extension deactivated!");
+}
 exports.deactivate = deactivate;
 //# sourceMappingURL=extension.js.map

@@ -9,7 +9,7 @@
 	"publisher": "MicheleFiorito",
 	"preview": true,
 	"description": "Bright Ascension's GenerationOne FSDK codegen tool integration",
-	"version": "0.1.3",
+	"version": "0.1.4",
 	"engines": {
 		"vscode": "^1.50.0"
 	},
