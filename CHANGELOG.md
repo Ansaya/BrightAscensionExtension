@@ -1,9 +1,8 @@
 # Change Log
 
-All notable changes to the "brightascension" extension will be documented in this file.
+### 0.1.1
+* Context dependant menu in explorer sidebar to create/generate deployments, libraries, services and component types
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
-## [Unreleased]
-
-- Initial release
+### 0.1.3
+* Git repository created
+* Marketplace information updated
