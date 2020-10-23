@@ -4,6 +4,8 @@ exports.deactivate = exports.activate = void 0;
 const vscode = require("vscode");
 const path = require('path');
 const fs = require('fs');
+const cp = require('child_process');
+var Gen1Root = '';
 class FSNameInputOptions {
     constructor(prompt) {
         this.prompt = prompt;
@@ -18,8 +20,28 @@ class FSNameInputOptions {
 function callCodeGen(args, cwd) {
     let task = new vscode.Task({
         type: 'BAType'
-    }, vscode.TaskScope.Workspace, 'Build', 'Bright Ascension CodeGen', new vscode.ShellExecution('codegen', args.concat(['-v']), { cwd: cwd }), undefined);
+    }, vscode.TaskScope.Workspace, 'Build', 'Bright Ascension CodeGen', new vscode.ShellExecution(path.join(Gen1Root, 'Tooling/bin/codegen'), args.concat(['-v']), { cwd: cwd }), undefined);
     vscode.tasks.executeTask(task);
+}
+function resolveEnvVar(envVar) {
+    let value;
+    try {
+        value = cp.execSync('if [[ -z "' + envVar + '"]]; then exit 1; else echo ' + envVar + '; fi');
+    }
+    catch (error) {
+        console.log("Environment variable " + envVar + " not found");
+        return undefined;
+    }
+    return value.toString().trim();
+}
+function exists(path) {
+    try {
+        cp.execSync('if [[ -e "' + path + '"]]; then exit 1; else echo exit 0; fi');
+    }
+    catch (error) {
+        return false;
+    }
+    return true;
 }
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -33,6 +55,24 @@ function activate(context) {
         vscode.window.showErrorMessage('Bright Ascension CodeGen activation error: please set Gen1 FSDK root in VS Code settings!');
         return;
     }
+    let envVars = gen1_root.match(/\$\{[a-zA-Z](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?\}/g);
+    if (envVars != null) {
+        let envVar = envVars.pop();
+        for (; envVar != undefined; envVar = envVars.pop()) {
+            let value = resolveEnvVar(envVar);
+            if (value == undefined) {
+                vscode.window.showErrorMessage('Bright Ascension Codegen activation error: environment variable "' + envVar + '" used in Gen1 FSDK root path is not valid');
+                return;
+            }
+            gen1_root = gen1_root.replace(envVar, value);
+        }
+    }
+    if (exists(gen1_root) == false) {
+        vscode.window.showErrorMessage('Bright Ascension CodeGen activation error: please set a valid path for Gen1 FSDK root in VS Code settings!');
+        return;
+    }
+    Gen1Root = gen1_root;
+    console.log('Loaded Gen1 FSDK root: ' + gen1_root);
     let obsw_root = path.join(gen1_root, 'OBSW/Source');
     console.log('Gen1 FSDK root: ' + gen1_root);
     console.log('Gen1 FSDK OBSW: ' + obsw_root);

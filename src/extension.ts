@@ -5,6 +5,9 @@ import * as vscode from 'vscode';
 
 const path = require('path');
 const fs = require('fs');
+const cp = require('child_process');
+
+var GEN1_ROOT: string = '';
 
 class FSNameInputOptions implements vscode.InputBoxOptions
 {
@@ -34,11 +37,32 @@ function callCodeGen(args: string[], cwd: string)
 		vscode.TaskScope.Workspace, 
 		'Build', 
 		'Bright Ascension CodeGen', 
-		new vscode.ShellExecution('codegen', args.concat(['-v']) , { cwd: cwd }), 
+		new vscode.ShellExecution(path.join(GEN1_ROOT, 'Tooling/bin/codegen'), args.concat(['-v']) , { cwd: cwd }), 
 		undefined);
 	vscode.tasks.executeTask(task);
 }
 
+function resolveEnvVar(envVar: string): undefined | string
+{
+	let value: Buffer | string;
+	try {
+		value = cp.execSync('if [[ -z "' + envVar + '"]]; then exit 1; else echo ' + envVar + '; fi');
+	} catch (error) {
+		console.log("Environment variable " + envVar + " not found");
+		return undefined;
+	}
+	return value.toString().trim();
+}
+
+function exists(path: string): boolean
+{
+	try {
+		cp.execSync('if [[ -e "' + path + '"]]; then exit 1; else echo exit 0; fi');
+	} catch (error) {
+		return false;
+	}
+	return true;
+}
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -48,20 +72,42 @@ export function activate(context: vscode.ExtensionContext) {
 	// This line of code will only be executed once when your extension is activated
 	console.log('Bright Ascension CodeGen extension activated!');
 
-	let ba_config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('brightascension');
-	let gen1_root: string | undefined = ba_config.get('gen1_root');
-	if(gen1_root === undefined)
+	let baConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('brightascension');
+	let gen1Root: string | undefined = baConfig.get('gen1_root');
+	if(gen1Root === undefined)
 	{
 		vscode.window.showErrorMessage('Bright Ascension CodeGen activation error: please set Gen1 FSDK root in VS Code settings!');
 		return;
 	}
-	let obsw_root: string = path.join(gen1_root, 'OBSW/Source');
-	console.log('Gen1 FSDK root: ' + gen1_root);
-	console.log('Gen1 FSDK OBSW: ' + obsw_root);
+	let envVars: RegExpMatchArray | null = gen1Root.match(/\$\{[a-zA-Z](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?\}/g);
+	if(envVars !== null)
+	{
+		let envVar: string | undefined = envVars.pop();
+		for(; envVar !== undefined; envVar = envVars.pop())
+		{
+			let value: string | undefined = resolveEnvVar(envVar);
+			if(value === undefined)
+			{
+				vscode.window.showErrorMessage('Bright Ascension Codegen activation error: environment variable "' + envVar + '" used in Gen1 FSDK root path is not valid');
+				return;
+			}
+			gen1Root = gen1Root.replace(envVar, value);
+		}
+	}
+	if(exists(gen1Root) === false)
+	{
+		vscode.window.showErrorMessage('Bright Ascension CodeGen activation error: please set a valid path for Gen1 FSDK root in VS Code settings!');
+		return;
+	}
+	GEN1_ROOT = gen1Root;
+	console.log('Loaded Gen1 FSDK root: ' + gen1Root);
+	let obswRoot: string = path.join(gen1Root, 'OBSW/Source');
+	console.log('Gen1 FSDK root: ' + gen1Root);
+	console.log('Gen1 FSDK OBSW: ' + obswRoot);
 
-	let gen1_configs: string[] = fs.readdirSync(path.join(obsw_root, 'build_system/config'));
-	gen1_configs = gen1_configs.map(fileMK => fileMK.replace('.mk', ''));
-	console.log('Available configs: ' + gen1_configs.join(', '));
+	let gen1Configs: string[] = fs.readdirSync(path.join(obswRoot, 'build_system/config'));
+	gen1Configs = gen1Configs.map(fileMK => fileMK.replace('.mk', ''));
+	console.log('Available configs: ' + gen1Configs.join(', '));
 	
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
@@ -69,7 +115,7 @@ export function activate(context: vscode.ExtensionContext) {
 	let newDeployment = vscode.commands.registerCommand('brightascension.newDeployment', (uri: vscode.Uri) => {
 		vscode.window.showInputBox(new FSNameInputOptions("Enter a name for the new deployment"))
 			.then((deplName: string | undefined) => {
-				if(deplName == undefined)
+				if(deplName === undefined)
 				{
 					return;
 				} 
@@ -82,7 +128,7 @@ export function activate(context: vscode.ExtensionContext) {
 	let newLibrary = vscode.commands.registerCommand('brightascension.newLibrary', (uri: vscode.Uri) => {
 		vscode.window.showInputBox(new FSNameInputOptions("Enter a name for the new library"))
 			.then((libName: string | undefined) => {
-				if(libName == undefined)
+				if(libName === undefined)
 				{
 					return;
 				} 
@@ -95,7 +141,7 @@ export function activate(context: vscode.ExtensionContext) {
 	let newComponentType = vscode.commands.registerCommand('brightascension.newComponentType', (uri: vscode.Uri) => {
 		vscode.window.showInputBox(new FSNameInputOptions("Enter a name for the new component type"))
 			.then((cTypeName: string | undefined) => {
-				if(cTypeName == undefined)
+				if(cTypeName === undefined)
 				{
 					return;
 				} 
@@ -108,7 +154,7 @@ export function activate(context: vscode.ExtensionContext) {
 	let newService = vscode.commands.registerCommand('brightascension.newService', (uri: vscode.Uri) => {
 		vscode.window.showInputBox(new FSNameInputOptions("Enter a name for the new service"))
 			.then((serviceName: string | undefined) => {
-				if(serviceName == undefined)
+				if(serviceName === undefined)
 				{
 					return;
 				} 
@@ -129,7 +175,7 @@ export function activate(context: vscode.ExtensionContext) {
 				detail: "Generates short prefixes for component instance names"
 			}], { matchOnDescription: true, canPickMany: true })
 			.then((flags: vscode.QuickPickItem[] | undefined) => {
-				if(flags == undefined)
+				if(flags === undefined)
 				{
 					return;
 				}	
@@ -155,7 +201,7 @@ export function activate(context: vscode.ExtensionContext) {
 				description: "Generate config storage for values"
 			}], { matchOnDescription: true, canPickMany: true })
 			.then((flags: vscode.QuickPickItem[] | undefined) => {
-				if(flags == undefined)
+				if(flags === undefined)
 				{
 					return;
 				}
@@ -175,7 +221,7 @@ export function activate(context: vscode.ExtensionContext) {
 				description: "Generates unit tests"
 			}], { matchOnDescription: true, canPickMany: true })
 			.then((flags: vscode.QuickPickItem[] | undefined) => {
-				if(flags == undefined)
+				if(flags === undefined)
 				{
 					return;
 				}
