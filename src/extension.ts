@@ -2,12 +2,13 @@
 // Import the module and reference it with the alias vscode in your code below
 import { stderr } from 'process';
 import * as vscode from 'vscode';
-
-const path = require('path');
-const fs = require('fs');
-const cp = require('child_process');
+import * as fs from 'fs';
+import * as cp from 'child_process';
+import * as path from 'path';
+import { Gen1TaskProvider } from './gen1TaskProvider';
 
 var GEN1_ROOT: string = '';
+let gen1TaskProvider: vscode.Disposable | undefined;
 
 class FSNameInputOptions implements vscode.InputBoxOptions
 {
@@ -121,7 +122,7 @@ export function activate(context: vscode.ExtensionContext) {
 				} 
 				console.log('User entered: ' + deplName);
 				deplName = deplName.trim();
-				callCodeGen(['deplyment', 'new', './' + deplName] , uri.fsPath);
+				callCodeGen(['deployment', 'new', './' + deplName] , uri.fsPath);
 			});
 	});
 
@@ -242,9 +243,20 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(generateDeployment);
 	context.subscriptions.push(generateComponentType);
 	context.subscriptions.push(generateService);
+
+	const workspaceRoot = vscode.workspace.rootPath;
+	if(!workspaceRoot)
+	{
+		return;
+	}
+	gen1TaskProvider = vscode.tasks.registerTaskProvider(Gen1TaskProvider.gen1Type, new Gen1TaskProvider(workspaceRoot));
 }
 
 // this method is called when your extension is deactivated
 export function deactivate() {
+	if(gen1TaskProvider)
+	{
+		gen1TaskProvider.dispose();
+	}
 	console.log("Birght Ascension CodeGen extension deactivated!");
 }

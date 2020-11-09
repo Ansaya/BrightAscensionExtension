@@ -9,7 +9,7 @@
 	"publisher": "MicheleFiorito",
 	"preview": true,
 	"description": "Bright Ascension's GenerationOne FSDK codegen tool integration",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"engines": {
 		"vscode": "^1.50.0"
 	},
@@ -44,46 +44,67 @@
 				}
 			}
 		],
+		"taskDefinitions": [
+			{
+				"type": "gen1",
+				"required": [
+					"targetRoot"
+				],
+				"properties": {
+					"targetRoot": {
+						"type": "string",
+						"description": "The target root directory containing the Makefile that provides the task."
+					},
+					"args": {
+						"type": "array",
+						"description": "The make command arguments."
+					}
+				}
+			}
+		],
+		"brightascension": {
+			"category": "Generation One FSDK"
+		},
 		"commands":[
 			{
 				"command": "brightascension.newDeployment",
 				"title": "New deployment",
-				"category": "%brightascension.category%"
+				"category": "Gen1 FSDK"
 			},
 			{
 				"command": "brightascension.newLibrary",
 				"title": "New library",
-				"category": "%brightascension.category%"
+				"category": "Gen1 FSDK"
 			},
 			{
 				"command": "brightascension.newComponentType",
 				"title": "New component type",
-				"category": "%brightascension.category%"
+				"category": "Gen1 FSDK"
 			},
 			{
 				"command": "brightascension.newService",
 				"title": "New service",
-				"category": "%brightascension.category%"
+				"category": "Gen1 FSDK"
 			},
 			{
 				"command": "brightascension.newService",
 				"title": "New service",
-				"category": "%brightascension.category%"
+				"category": "Gen1 FSDK"
 			},
 			{
 				"command": "brightascension.generateDeployment",
 				"title": "Generate deployment",
-				"category": "%brightascension.category%"
+				"category": "Gen1 FSDK"
 			},
 			{
 				"command": "brightascension.generateComponentType",
 				"title": "Generate component type",
-				"category": "%brightascension.category%"
+				"category": "Gen1 FSDK"
 			},
 			{
 				"command": "brightascension.generateService",
 				"title": "Generate service",
-				"category": "%brightascension.category%"
+				"category": "Gen1 FSDK"
 			}
 		],
 		"submenus": [
