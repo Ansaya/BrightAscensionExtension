@@ -9,7 +9,7 @@
 	"publisher": "MicheleFiorito",
 	"preview": true,
 	"description": "Bright Ascension's GenerationOne FSDK codegen tool integration",
-	"version": "0.1.5",
+	"version": "0.1.6",
 	"engines": {
 		"vscode": "^1.50.0"
 	},
@@ -32,15 +32,15 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
-		"configuration":[
+		"configuration": [
 			{
-				"title": "Birght Ascension CodeGen",
+				"title": "Bright Ascension CodeGen",
 				"properties": {
 					"brightascension.gen1_root": {
-						"type":"string",
+						"type": "string",
 						"default": "${GEN1_ROOT}",
 						"description": "Full path to GenerationOne FSDK root directory."
-					} 
+					}
 				}
 			}
 		],
@@ -65,30 +65,10 @@
 		"brightascension": {
 			"category": "Generation One FSDK"
 		},
-		"commands":[
+		"commands": [
 			{
-				"command": "brightascension.newDeployment",
-				"title": "New deployment",
-				"category": "Gen1 FSDK"
-			},
-			{
-				"command": "brightascension.newLibrary",
-				"title": "New library",
-				"category": "Gen1 FSDK"
-			},
-			{
-				"command": "brightascension.newComponentType",
-				"title": "New component type",
-				"category": "Gen1 FSDK"
-			},
-			{
-				"command": "brightascension.newService",
-				"title": "New service",
-				"category": "Gen1 FSDK"
-			},
-			{
-				"command": "brightascension.newService",
-				"title": "New service",
+				"command": "brightascension.create",
+				"title": "GenOne Create",
 				"category": "Gen1 FSDK"
 			},
 			{
@@ -107,16 +87,10 @@
 				"category": "Gen1 FSDK"
 			}
 		],
-		"submenus": [
-			{
-				"id": "brightascension.generate",
-				"label": "Generate"
-			}	
-		],
 		"menus": {
 			"explorer/context": [
 				{
-					"submenu": "brightascension.generate",
+					"command": "brightascension.create",
 					"when": "explorerResourceIsFolder"
 				},
 				{
@@ -130,24 +104,6 @@
 				{
 					"command": "brightascension.generateService",
 					"when": "resourceFilename == service.xml"
-				}
-			],
-			"brightascension.generate": [
-				{
-					"command": "brightascension.newDeployment",
-					"when": "explorerResourceIsFolder"
-				},
-				{
-					"command": "brightascension.newLibrary",
-					"when": "explorerResourceIsFolder"
-				},
-				{
-					"command": "brightascension.newComponentType",
-					"when": "explorerResourceIsFolder"
-				},
-				{
-					"command": "brightascension.newService",
-					"when": "explorerResourceIsFolder"
 				}
 			]
 		}

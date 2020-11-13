@@ -4,7 +4,7 @@ This extension will provide support for GenerationOne FSDK from Bright Ascension
 
 ## Features
 
-See release notes for now.
+See changelog for now.
 
 ## Requirements
 

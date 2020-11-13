@@ -31,7 +31,7 @@ export class Gen1TaskProvider implements vscode.TaskProvider {
 			// resolveTask requires that the same definition object be used.
 			const definition: Gen1TaskDefinition = <any>_task.definition;
             return new vscode.Task(definition, _task.scope ?? vscode.TaskScope.Workspace, definition.targetRoot, Gen1TaskProvider.gen1Type, 
-                new vscode.ShellExecution(`make ${definition.args?.join(' ')}`, { cwd: definition.targetRoot }));
+                new vscode.ShellExecution(`make ${definition.args?.join(' ')}`, { cwd: definition.targetRoot }), "$gcc");
 		}
 		return undefined;
 	}
@@ -156,7 +156,7 @@ async function getGen1Tasks(): Promise<vscode.Task[]> {
                                 args: [`-j${os.cpus().length}`, `CONFIG=${config}`]
                             };
                             const buildTask = new vscode.Task(build, workspaceFolder, 'Build ' + taskName, build.type, 
-                                new vscode.ShellExecution(`make ${build.args?.join(' ')}`, { cwd: build.targetRoot }));
+                                new vscode.ShellExecution(`make ${build.args?.join(' ')}`, { cwd: build.targetRoot }), "$gcc");
                             result.push(buildTask);
                             buildTask.group = vscode.TaskGroup.Build;
 
@@ -166,7 +166,7 @@ async function getGen1Tasks(): Promise<vscode.Task[]> {
                                 args: [`-j${os.cpus().length}`, `CONFIG=${config}`, 'clean']
                             };
                             const cleanTask = new vscode.Task(clean, workspaceFolder, 'Clean ' + taskName, clean.type, 
-                                new vscode.ShellExecution(`make ${clean.args?.join(' ')}`, { cwd: clean.targetRoot }));
+                                new vscode.ShellExecution(`make ${clean.args?.join(' ')}`, { cwd: clean.targetRoot }), "$gcc");
                             result.push(cleanTask);
                             cleanTask.group = vscode.TaskGroup.Build;
                         }

@@ -10,3 +10,7 @@
 ### 0.1.5
 * Gen1 root directory can now contain environment variables (es. ${GEN1_ROOT})
 * Task provider for FSDK deployments and libraries added
+
+### 0.1.6
+* Typo fixed in settings menu header
+* Improved context menu will now trigger contextual items creation based on current directory
